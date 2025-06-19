@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汽车前灯电路仿真系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
+            color: #fff;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            display: flex;
+            height: 100vh;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        /* 左侧面板 - 知识区 */
+        .knowledge-panel {
+            flex: 1;
+            background: rgba(0, 30, 60, 0.85);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            border: 1px solid rgba(79, 195, 247, 0.3);
+        }
+        
+        .panel-title {
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+            color: #4fc3f7;
+            text-align: center;
+            text-shadow: 0 0 15px rgba(79, 195, 247, 0.7);
+            padding-bottom: 15px;
+            border-bottom: 3px solid #0288d1;
+        }
+        
+        .knowledge-content {
+            flex: 1;
+            background: rgba(2, 70, 120, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 4px solid #29b6f6;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section h3 {
+            font-size: 1.6rem;
+            color: #29b6f6;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section h3 i {
+            margin-right: 10px;
+        }
+        
+        .section p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .formula {
+            background: rgba(255, 152, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #ffca28;
+            border: 1px solid #ff9800;
+        }
+        
+        .example {
+            background: rgba(0, 150, 136, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #00e676;
+        }
+        
+        .example h4 {
+            color: #00e676;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+        
+        /* 控制面板 */
+        .control-panel {
+            background: rgba(13, 43, 69, 0.9);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+            height: 10px;
+            -webkit-appearance: none;
+            background: linear-gradient(to right, #0077c2, #00b0ff);
+            border-radius: 5px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #e1f5fe;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 12px rgba(0, 188, 212, 0.9);
+            border: 2px solid #29b6f6;
+        }
+        
+        .value-display {
+            background: rgba(2, 119, 189, 0.4);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
+        /* 右侧面板 - 动画区 */
+        .animation-panel {
+            flex: 1.5;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .circuit-container {
+            flex: 1;
+            background: rgba(0, 20, 40, 0.85);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid #0288d1;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+        
+        .car-container {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+        }
+        
+        .car-body {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(to bottom, #e74c3c, #c0392b);
+            border-radius: 100px 100px 20px 20px;
+            position: relative;
+        }
+        
+        .car-top {
+            position: absolute;
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 80px;
+            background: linear-gradient(to bottom, #3498db, #2980b9);
+            border-radius: 100px 100px 0 0;
+        }
+        
+        .wheel {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: #2c3e50;
+            border-radius: 50%;
+            bottom: -35px;
+            border: 5px solid #7f8c8d;
+        }
+        
+        .wheel-left {
+            left: 80px;
+        }
+        
+        .wheel-right {
+            right: 80px;
+        }
+        
+        .headlight {
+            position: absolute;
+            bottom: 20px;
+            width: 50px;
+            height: 30px;
+            background: #f1c40f;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .headlight-left {
+            left: 150px;
+        }
+        
+        .headlight-right {
+            right: 150px;
+        }
+        
+        .light-beam {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 100px solid transparent;
+            border-right: 100px solid transparent;
+            border-top: 300px solid rgba(255, 255, 200, 0.2);
+            bottom: 30px;
+            z-index: 1;
+        }
+        
+        .light-left {
+            left: 150px;
+            transform: translateX(-50%);
+        }
+        
+        .light-right {
+            right: 150px;
+            transform: translateX(50%);
+        }
+        
+        .circuit-diagram {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 200px;
+        }
+        
+        .circuit-element {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 5;
+        }
+        
+        .battery {
+            top: 20px;
+            left: 100px;
+        }
+        
+        .switch {
+            top: 20px;
+            left: 300px;
+        }
+        
+        .fuse {
+            top: 20px;
+            left: 500px;
+        }
+        
+        .element-label {
+            font-weight: bold;
+            margin-top: 10px;
+            color: #e1f5fe;
+            text-shadow: 0 0 5px rgba(225, 245, 254, 0.7);
+        }
+        
+        .element-value {
+            font-size: 0.9rem;
+            color: #81d4fa;
+            margin-top: 5px;
+        }
+        
+        .wire {
+            position: absolute;
+            background: #ffca28;
+            box-shadow: 0 0 10px rgba(255, 202, 40, 0.8);
+            z-index: 1;
+        }
+        
+        .horizontal {
+            height: 5px;
+        }
+        
+        .vertical {
+            width: 5px;
+        }
+        
+        .wire-top {
+            top: 50px;
+            left: 150px;
+            width: 300px;
+        }
+        
+        .wire-middle {
+            top: 50px;
+            left: 450px;
+            width: 200px;
+        }
+        
+        .wire-right {
+            top: 50px;
+            left: 700px;
+            width: 150px;
+        }
+        
+        .wire-return {
+            top: 100px;
+            left: 100px;
+            width: 750px;
+        }
+        
+        .wire-vertical {
+            top: 50px;
+            left: 850px;
+            height: 50px;
+        }
+        
+        .wire-vertical-return {
+            top: 100px;
+            left: 850px;
+            height: 50px;
+        }
+        
+        .current-flow {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #00e676;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #00e676;
+            z-index: 10;
+            opacity: 0.8;
+        }
+        
+        /* 仪表盘 */
+        .dashboard {
+            height: 180px;
+            background: rgba(13, 43, 69, 0.9);
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(41, 182, 246, 0.2);
+        }
+        
+        .instrument {
+            width: 140px;
+            height: 140px;
+            background: rgba(0, 30, 60, 0.8);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #0288d1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .instrument:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 188, 212, 0.6);
+            border-color: #00bcd4;
+        }
+        
+        .instrument i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #4fc3f7;
+        }
+        
+        .instrument-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #bbdefb;
+        }
+        
+        .instrument-value {
+            position: absolute;
+            bottom: 10px;
+            font-size: 1rem;
+            color: #e1f5fe;
+            background: rgba(2, 119, 189, 0.4);
+            padding: 3px 10px;
+            border-radius: 10px;
+        }
+        
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: rgba(0, 30, 60, 0.95);
+            width: 80%;
+            max-width: 700px;
+            border-radius: 15px;
+            padding: 30px;
+            position: relative;
+            border: 2px solid #0288d1;
+            box-shadow: 0 0 30px rgba(0, 188, 212, 0.7);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            color: #f44336;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .close-modal:hover {
+            transform: rotate(90deg);
+            color: #ff5252;
+        }
+        
+        .modal-title {
+            font-size: 1.8rem;
+            color: #4fc3f7;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .modal-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #0288d1;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #bbdefb;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            color: #4fc3f7;
+            border-bottom: 3px solid #4fc3f7;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+            min-height: 300px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .qr-section {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 30, 60, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #0288d1;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        #qrcode {
+            display: inline-block;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        
+        .waveform-container {
+            height: 200px;
+            background: rgba(0, 20, 40, 0.85);
+            border-radius: 15px;
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px solid #0288d1;
+        }
+        
+        .btn-reset {
+            background: linear-gradient(to right, #d50000, #ff5252);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+            margin-top: 15px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(213, 0, 0, 0.4);
+        }
+        
+        .btn-reset:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(213, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧知识区 -->
+        <div class="knowledge-panel">
+            <h1 class="panel-title">基尔霍夫定律应用</h1>
+            
+            <div class="knowledge-content">
+                <div class="section">
+                    <h3><i class="fas fa-lightbulb"></i> 基尔霍夫电流定律 (KCL)</h3>
+                    <p>基尔霍夫电流定律指出：在电路的任何节点，流入节点的电流之和等于流出节点的电流之和。</p>
+                    <div class="formula">ΣI<sub>in</sub> = ΣI<sub>out</sub></div>
+                    <p>这一定律基于电荷守恒原理，意味着电荷在电路中不会无端产生或消失。</p>
+                    
+                    <div class="example">
+                        <h4>汽车电路应用：</h4>
+                        <p>在汽车前灯电路中，从电池流出的总电流等于流入前灯、仪表和其他设备的电流之和。</p>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3><i class="fas fa-bolt"></i> 基尔霍夫电压定律 (KVL)</h3>
+                    <p>基尔霍夫电压定律指出：沿任何闭合回路的所有电压降的代数和等于零。</p>
+                    <div class="formula">ΣV = 0</div>
+                    <p>这一定律基于能量守恒原理，意味着电场力所做的功与路径无关。</p>
+                    
+                    <div class="example">
+                        <h4>汽车电路应用：</h4>
+                        <p>在汽车前灯回路中，电池提供的电压等于前灯、开关和导线上的电压降之和。</p>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3><i class="fas fa-car"></i> 汽车前灯电路原理</h3>
+                    <p>汽车前灯电路是基尔霍夫定律的典型应用：</p>
+                    <ul style="padding-left: 20px; margin-bottom: 15px;">
+                        <li>电源：12V汽车电池</li>
+                        <li>负载：两个并联的前灯（每个约4Ω）</li>
+                        <li>控制元件：开关、保险丝</li>
+                        <li>导线：连接各元件形成回路</li>
+                    </ul>
+                    <p>根据欧姆定律和基尔霍夫定律：</p>
+                    <div class="formula">I = V / R<sub>total</sub></div>
+                    <p>其中R<sub>total</sub>是总电阻，对于并联电路：1/R<sub>total</sub> = 1/R<sub>1</sub> + 1/R<sub>2</sub></p>
+                </div>
+            </div>
+            
+            <!-- 控制面板 -->
+            <div class="control-panel">
+                <h3 style="text-align: center; margin-bottom: 20px; color: #29b6f6;"><i class="fas fa-sliders-h"></i> 电路控制面板</h3>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <span><i class="fas fa-car-battery"></i> 电池电压 (V):</span>
+                        <span id="voltage-value">12.0</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" id="voltage" min="6" max="24" step="0.1" value="12">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <span><i class="fas fa-bolt"></i> 前灯电阻 (Ω):</span>
+                        <span id="resistance-value">4.0</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" id="resistance" min="1" max="10" step="0.1" value="4">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <span><i class="fas fa-toggle-on"></i> 开关状态:</span>
+                        <span id="switch-state">开启</span>
+                    </div>
+                    <div class="slider-container" style="justify-content: center;">
+                        <label class="switch" style="transform: scale(1.5);">
+                            <input type="checkbox" id="toggle-switch" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="value-display">
+                    <strong>电路电流:</strong> <span id="current-value">3.00</span> A
+                </div>
+                
+                <div class="value-display">
+                    <strong>前灯功率:</strong> <span id="power-value">36.00</span> W
+                </div>
+                
+                <button class="btn-reset" id="reset-btn"><i class="fas fa-sync-alt"></i> 重置电路参数</button>
+            </div>
+        </div>
+        
+        <!-- 右侧动画区 -->
+        <div class="animation-panel">
+            <div class="circuit-container">
+                <!-- 汽车和车灯 -->
+                <div class="car-container">
+                    <div class="car-body">
+                        <div class="car-top"></div>
+                        <div class="wheel wheel-left"></div>
+                        <div class="wheel wheel-right"></div>
+                        <div class="headlight headlight-left">
+                            <div class="light-beam light-left" id="left-beam"></div>
+                        </div>
+                        <div class="headlight headlight-right">
+                            <div class="light-beam light-right" id="right-beam"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 电路图 -->
+                <div class="circuit-diagram">
+                    <div class="circuit-element battery">
+                        <svg width="60" height="40" viewBox="0 0 24 24">
+                            <rect x="2" y="7" width="20" height="10" fill="none" stroke="#E1F5FE" stroke-width="2"/>
+                            <line x1="6" y1="5" x2="6" y2="9" stroke="#E1F5FE" stroke-width="2"/>
+                            <line x1="6" y1="15" x2="6" y2="19" stroke="#E1F5FE" stroke-width="2"/>
+                            <line x1="18" y1="5" x2="18" y2="9" stroke="#FF6E40" stroke-width="2"/>
+                            <line x1="18" y1="15" x2="18" y2="19" stroke="#29B6F6" stroke-width="2"/>
+                        </svg>
+                        <div class="element-label">电池</div>
+                        <div class="element-value" id="battery-value">12.0V</div>
+                    </div>
+                    
+                    <div class="circuit-element switch">
+                        <svg width="60" height="40" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" fill="none" stroke="#00E676" stroke-width="2"/>
+                            <line x1="12" y1="2" x2="12" y2="22" stroke="#00E676" stroke-width="2" id="switch-line"/>
+                        </svg>
+                        <div class="element-label">开关</div>
+                        <div class="element-value" id="switch-label">开启</div>
+                    </div>
+                    
+                    <div class="circuit-element fuse">
+                        <svg width="60" height="40" viewBox="0 0 24 24">
+                            <rect x="8" y="2" width="8" height="20" fill="none" stroke="#FFCA28" stroke-width="2"/>
+                            <line x1="8" y1="12" x2="16" y2="12" stroke="#FF6E40" stroke-width="2"/>
+                        </svg>
+                        <div class="element-label">保险丝</div>
+                        <div class="element-value">5A</div>
+                    </div>
+                    
+                    <!-- 导线 -->
+                    <div class="wire horizontal wire-top"></div>
+                    <div class="wire horizontal wire-middle"></div>
+                    <div class="wire horizontal wire-right"></div>
+                    <div class="wire horizontal wire-return"></div>
+                    <div class="wire vertical wire-vertical"></div>
+                    <div class="wire vertical wire-vertical-return"></div>
+                    
+                    <!-- 电流指示点 -->
+                    <div class="current-flow" id="current-1"></div>
+                    <div class="current-flow" id="current-2"></div>
+                    <div class="current-flow" id="current-3"></div>
+                </div>
+            </div>
+            
+            <!-- 波形图 -->
+            <div class="waveform-container">
+                <canvas id="circuit-chart"></canvas>
+            </div>
+            
+            <!-- 仪表盘 -->
+            <div class="dashboard">
+                <div class="instrument" id="voltmeter">
+                    <i class="fas fa-bolt"></i>
+                    <div class="instrument-name">电压表</div>
+                    <div class="instrument-value" id="voltmeter-value">12.0 V</div>
+                </div>
+                
+                <div class="instrument" id="ammeter">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <div class="instrument-name">电流表</div>
+                    <div class="instrument-value" id="ammeter-value">3.0 A</div>
+                </div>
+                
+                <div class="instrument" id="multimeter">
+                    <i class="fas fa-ruler-combined"></i>
+                    <div class="instrument-name">万用表</div>
+                    <div class="instrument-value">多功能</div>
+                </div>
+                
+                <div class="instrument" id="wattmeter">
+                    <i class="fas fa-charging-station"></i>
+                    <div class="instrument-name">功率表</div>
+                    <div class="instrument-value" id="wattmeter-value">36.0 W</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 二维码 -->
+        <div class="qr-section">
+            <h4>扫码访问</h4>
+            <div id="qrcode"></div>
+        </div>
+    </div>
+    
+    <!-- 仪表使用模态框 -->
+    <div class="modal" id="instrument-modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-modal">&times;</span>
+            <h2 class="modal-title" id="modal-title">电压表使用说明</h2>
+            
+            <div class="modal-tabs">
+                <div class="tab active" data-tab="instruction">使用教学</div>
+                <div class="tab" data-tab="test">学生自测</div>
+            </div>
+            
+            <div class="tab-content active" id="instruction-content">
+                <h3><i class="fas fa-book"></i> 电压表使用方法</h3>
+                <p>电压表用于测量电路两点之间的电势差（电压）。</p>
+                
+                <div class="instruction-steps">
+                    <p><strong>步骤1：</strong> 将电压表设置为电压测量模式（V）</p>
+                    <p><strong>步骤2：</strong> 选择适当的量程（本仿真中自动选择）</p>
+                    <p><strong>步骤3：</strong> 将电压表的红表笔连接到待测元件的正极</p>
+                    <p><strong>步骤4：</strong> 将电压表的黑表笔连接到待测元件的负极</p>
+                    <p><strong>步骤5：</strong> 读取显示屏上的电压值</p>
+                </div>
+                
+                <div class="example" style="margin-top: 20px;">
+                    <h4><i class="fas fa-car"></i> 汽车前灯电路测量：</h4>
+                    <p>测量前灯电压：将电压表并联在前灯两端</p>
+                    <p>测量电池电压：将电压表并联在电池两端</p>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="test-content">
+                <h3><i class="fas fa-pencil-alt"></i> 电压表自测题</h3>
+                <p>请回答以下问题以测试您对电压表的理解：</p>
+                
+                <div class="test-questions">
+                    <div class="question">
+                        <p><strong>1. 测量电路元件两端电压时，电压表应如何连接？</strong></p>
+                        <ul style="list-style-type: none; margin: 10px 0 20px 20px;">
+                            <li><input type="radio" name="q1" id="q1a"> <label for="q1a">A. 串联在电路中</label></li>
+                            <li><input type="radio" name="q1" id="q1b"> <label for="q1b">B. 并联在元件两端</label></li>
+                            <li><input type="radio" name="q1" id="q1c"> <label for="q1c">C. 连接在电源两端</label></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="question">
+                        <p><strong>2. 如果电压表显示负值，表示什么？</strong></p>
+                        <ul style="list-style-type: none; margin: 10px 0 20px 20px;">
+                            <li><input type="radio" name="q2" id="q2a"> <label for="q2a">A. 电路故障</label></li>
+                            <li><input type="radio" name="q2" id="q2b"> <label for="q2b">B. 表笔接反</label></li>
+                            <li><input type="radio" name="q2" id="q2c"> <label for="q2c">C. 电压过高</label></li>
+                        </ul>
+                    </div>
+                    
+                    <button class="btn-reset" style="width: auto; display: inline-block; margin-top: 10px;">提交答案</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const voltageSlider = document.getElementById('voltage');
+        const resistanceSlider = document.getElementById('resistance');
+        const toggleSwitch = document.getElementById('toggle-switch');
+        const resetBtn = document.getElementById('reset-btn');
+        
+        const voltageValue = document.getElementById('voltage-value');
+        const resistanceValue = document.getElementById('resistance-value');
+        const switchState = document.getElementById('switch-state');
+        const currentValue = document.getElementById('current-value');
+        const powerValue = document.getElementById('power-value');
+        
+        const batteryValue = document.getElementById('battery-value');
+        const switchLabel = document.getElementById('switch-label');
+        const leftBeam = document.getElementById('left-beam');
+        const rightBeam = document.getElementById('right-beam');
+        
+        // 仪表值
+        const voltmeterValue = document.getElementById('voltmeter-value');
+        const ammeterValue = document.getElementById('ammeter-value');
+        const wattmeterValue = document.getElementById('wattmeter-value');
+        
+        // 模态框元素
+        const modal = document.getElementById('instrument-modal');
+        const closeModal = document.getElementById('close-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const instructionContent = document.getElementById('instruction-content');
+        const testContent = document.getElementById('test-content');
+        const tabs = document.querySelectorAll('.tab');
+        
+        // 初始化电路参数
+        let voltage = 12.0;
+        let resistance = 4.0;
+        let isSwitchOn = true;
+        let timeCounter = 0;
+        
+        // 初始化图表
+        const ctx = document.getElementById('circuit-chart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 20}, (_, i) => i),
+                datasets: [
+                    {
+                        label: '电路电流 (A)',
+                        data: [],
+                        borderColor: '#00e676',
+                        backgroundColor: 'rgba(0, 230, 118, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: '前灯电压 (V)',
+                        data: [],
+                        borderColor: '#29b6f6',
+                        backgroundColor: 'rgba(41, 182, 246, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#e1f5fe',
+                            font: {
+                                size: 14
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.15)'
+                        },
+                        ticks: {
+                            color: '#e1f5fe',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.15)'
+                        },
+                        ticks: {
+                            color: '#e1f5fe',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 更新电路计算
+        function updateCircuit() {
+            // 使用欧姆定律计算电流
+            const current = isSwitchOn ? voltage / resistance : 0;
+            const power = isSwitchOn ? voltage * current : 0;
+            
+            // 更新显示值
+            voltageValue.textContent = voltage.toFixed(1);
+            resistanceValue.textContent = resistance.toFixed(1);
+            switchState.textContent = isSwitchOn ? '开启' : '关闭';
+            currentValue.textContent = current.toFixed(2);
+            powerValue.textContent = power.toFixed(2);
+            
+            batteryValue.textContent = voltage.toFixed(1) + 'V';
+            switchLabel.textContent = isSwitchOn ? '开启' : '关闭';
+            
+            // 更新仪表值
+            voltmeterValue.textContent = isSwitchOn ? voltage.toFixed(1) + ' V' : '0.0 V';
+            ammeterValue.textContent = isSwitchOn ? current.toFixed(2) + ' A' : '0.0 A';
+            wattmeterValue.textContent = isSwitchOn ? power.toFixed(2) + ' W' : '0.0 W';
+            
+            // 更新开关状态
+            const switchLine = document.querySelector('#switch-line');
+            if (isSwitchOn) {
+                switchLine.setAttribute('stroke', '#00E676');
+                leftBeam.style.borderTop = '300px solid rgba(255, 255, 200, 0.4)';
+                rightBeam.style.borderTop = '300px solid rgba(255, 255, 200, 0.4)';
+            } else {
+                switchLine.setAttribute('stroke', '#f44336');
+                leftBeam.style.borderTop = '300px solid rgba(255, 255, 200, 0.05)';
+                rightBeam.style.borderTop = '300px solid rgba(255, 255, 200, 0.05)';
+            }
+            
+            // 更新电流点动画
+            animateCurrent(current);
+            
+            // 更新图表
+            updateChart(current, voltage);
+        }
+        
+        // 动画电流点
+        function animateCurrent(current) {
+            const points = ['current-1', 'current-2', 'current-3'];
+            const speed = current > 0 ? Math.min(3000 / (current * 100), 200) : 0;
+            
+            points.forEach((id, index) => {
+                const point = document.getElementById(id);
+                if (isSwitchOn && current > 0) {
+                    point.style.display = 'block';
+                    
+                    // 动画逻辑
+                    const start = performance.now();
+                    const duration = 2000 - (index * 500);
+                    
+                    function move(time) {
+                        const elapsed = time - start;
+                        const progress = (elapsed % duration) / duration;
+                        const pos = progress * 750;
+                        
+                        point.style.left = `${100 + pos}px`;
+                        
+                        if (isSwitchOn && current > 0) {
+                            requestAnimationFrame(move);
+                        }
+                    }
+                    
+                    requestAnimationFrame(move);
+                } else {
+                    point.style.display = 'none';
+                }
+            });
+        }
+        
+        // 更新图表数据
+        function updateChart(current, voltage) {
+            timeCounter++;
+            
+            // 添加新数据点
+            chart.data.datasets[0].data.push(current);
+            chart.data.datasets[1].data.push(voltage);
+            
+            // 保持数据点数量
+            if (chart.data.datasets[0].data.length > 20) {
+                chart.data.datasets[0].data.shift();
+                chart.data.datasets[1].data.shift();
+            }
+            
+            // 更新X轴标签
+            chart.data.labels = Array.from({length: 20}, (_, i) => timeCounter - 19 + i);
+            
+            chart.update();
+        }
+        
+        // 仪表点击事件
+        document.querySelectorAll('.instrument').forEach(instrument => {
+            instrument.addEventListener('click', function() {
+                const instrumentName = this.querySelector('.instrument-name').textContent;
+                modalTitle.textContent = instrumentName + '使用说明';
+                modal.style.display = 'flex';
+            });
+        });
+        
+        // 标签切换
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+                
+                // 更新活动标签
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // 更新内容
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(tabName + '-content').classList.add('active');
+            });
+        });
+        
+        // 关闭模态框
+        closeModal.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+        
+        // 点击模态框外部关闭
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        // 事件监听器
+        voltageSlider.addEventListener('input', () => {
+            voltage = parseFloat(voltageSlider.value);
+            updateCircuit();
+        });
+        
+        resistanceSlider.addEventListener('input', () => {
+            resistance = parseFloat(resistanceSlider.value);
+            updateCircuit();
+        });
+        
+        toggleSwitch.addEventListener('change', () => {
+            isSwitchOn = toggleSwitch.checked;
+            updateCircuit();
+        });
+        
+        resetBtn.addEventListener('click', () => {
+            voltageSlider.value = 12;
+            resistanceSlider.value = 4;
+            toggleSwitch.checked = true;
+            voltage = 12.0;
+            resistance = 4.0;
+            isSwitchOn = true;
+            updateCircuit();
+        });
+        
+        // 生成二维码
+        function generateQRCode() {
+            const qrcodeDiv = document.getElementById('qrcode');
+            const currentUrl = window.location.href;
+            
+            // 清除之前的二维码
+            qrcodeDiv.innerHTML = '';
+            
+            // 生成新的二维码
+            new QRCode(qrcodeDiv, {
+                text: currentUrl,
+                width: 120,
+                height: 120,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+        
+        // 初始化
+        window.addEventListener('load', () => {
+            updateCircuit();
+            generateQRCode();
+            
+            // 添加一些初始数据点
+            for (let i = 0; i < 20; i++) {
+                updateChart(3.0, 12.0);
+            }
+        });
+    </script>
+</body>
+</html>
